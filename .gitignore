@@ -1,0 +1,4 @@
+/thumbnails/*
+/uploads/*
+images.db
+app.log
