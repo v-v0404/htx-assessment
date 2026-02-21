@@ -5,7 +5,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from fastapi import FastAPI, UploadFile, File, BackgroundTasks, Depends
 from sqlalchemy.orm import Session
 from fastapi.responses import JSONResponse
-from PIL import Image as PILImage, UnidentifiedImageError
+from PIL import Image as PILImage
 from typing import Annotated
 import uuid
 import shutil
@@ -48,7 +48,7 @@ async def upload_image(
             })
             continue
         
-        #  Validate actual image content (eg extension is changed)
+        # Validate actual image content (eg extension is changed)
         try:
             contents = await file.read()
             image = PILImage.open(io.BytesIO(contents))
@@ -105,6 +105,7 @@ def list_images(db: Session = Depends(get_db)):
     for img in images:
         result.append({
             "status": img.status,
+            "caption": img.caption,
             "data": {
                 "image_id": img.id,
                 "original_name": img.original_name,

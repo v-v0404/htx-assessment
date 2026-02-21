@@ -14,7 +14,7 @@ class Image(Base):
     format = Column(String)
     size_bytes = Column(Integer)
 
-    # caption = Column(String)
+    caption = Column(String)
 
     processed_at = Column(DateTime, default=func.now())
     processing_time = Column(Float)

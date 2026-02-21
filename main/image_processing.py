@@ -7,6 +7,7 @@ from datetime import datetime
 
 from models import Image
 from logger import logger
+from generate_caption import generate_caption
 
 UPLOAD_DIR = "uploads"
 THUMBNAIL_DIR = "thumbnails"
@@ -43,8 +44,8 @@ def process_image(db: Session, image_id: str, file_path: str):
         img.thumbnail((512, 512))
         img.save(medium_thumb_path)
 
-        # # AI Caption
-        # caption = generate_caption(file_path)
+        # Generate caption
+        caption = generate_caption(file_path)
 
         # Update DB
         db_image = db.query(Image).filter(Image.id == image_id).first()
@@ -52,7 +53,7 @@ def process_image(db: Session, image_id: str, file_path: str):
         db_image.height = height
         db_image.format = img.format
         db_image.size_bytes = file_size
-        # db_image.caption = caption
+        db_image.caption = caption
         db_image.status = "success"
         db_image.processed_at = datetime.utcnow()
         db_image.processing_time = time.time() - start_time
