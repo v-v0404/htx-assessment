@@ -9,8 +9,9 @@ from models import Image
 from logger import logger
 from generate_caption import generate_caption
 
-UPLOAD_DIR = "uploads"
-THUMBNAIL_DIR = "thumbnails"
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+UPLOAD_DIR = os.path.join(BASE_DIR, "uploads")
+THUMBNAIL_DIR = os.path.join(BASE_DIR, "thumbnails")
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(THUMBNAIL_DIR, exist_ok=True)

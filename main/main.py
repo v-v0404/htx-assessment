@@ -4,7 +4,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 from fastapi import FastAPI, UploadFile, File, BackgroundTasks, Depends, HTTPException
 from sqlalchemy.orm import Session
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from PIL import Image as PILImage
 from typing import Annotated
 import uuid
@@ -17,7 +17,7 @@ from datetime import datetime
 from sqlalchemy import func
 from database import engine, SessionLocal, Base
 from models import Image
-from image_processing import process_image, UPLOAD_DIR
+from image_processing import THUMBNAIL_DIR, process_image, UPLOAD_DIR
 from logger import logger
 
 app = FastAPI()
@@ -195,3 +195,18 @@ def get_image(image_id: str, db: Session = Depends(get_db)):
         },
         "error": image.error_message
     }
+
+@app.get("/api/images/{image_id}/thumbnails/{size}")
+def get_thumbnail(image_id: str, size: str, db: Session = Depends(get_db)):
+    image = db.query(Image).filter(Image.id == image_id).first()
+    if not image:
+        raise HTTPException(status_code=404, detail="Image not found")
+    if image.status != "success":
+        raise HTTPException(status_code=400, detail=f"Image processing {image.status}")
+    
+    if size.lower() == "small":
+        return FileResponse(f"{THUMBNAIL_DIR}/{image_id}_small.jpg", media_type="image/jpeg")
+    elif size.lower() == "medium":
+        return FileResponse(f"{THUMBNAIL_DIR}/{image_id}_medium.jpg", media_type="image/jpeg")
+    else:
+        raise HTTPException(status_code=400, detail="Invalid thumbnail size requested, please choose 'small' or 'medium'")
