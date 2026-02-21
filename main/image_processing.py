@@ -2,6 +2,7 @@ import os
 import uuid
 import time
 from PIL import Image as PILImage
+from PIL.ExifTags import TAGS
 from sqlalchemy.orm import Session
 from datetime import datetime
 
@@ -16,7 +17,24 @@ THUMBNAIL_DIR = os.path.join(BASE_DIR, "thumbnails")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(THUMBNAIL_DIR, exist_ok=True)
 
-ALLOWED_FORMATS = ["JPEG", "PNG"]
+
+def extract_exif_data(image_path: str) -> dict:
+    img = PILImage.open(image_path)
+    exif_data_raw = img.getexif()
+
+    if exif_data_raw:
+        exif_table = {}
+        for tag_id, value in exif_data_raw.items():
+            tag_name = TAGS.get(tag_id, tag_id)
+            # Convert non-serializable values to strings for JSON storage
+            if isinstance(value, bytes):
+                value = value.decode("utf-8", errors="replace")
+            elif not isinstance(value, (str, int, float, bool, list, dict)):
+                value = str(value)
+            exif_table[str(tag_name)] = value
+        return exif_table
+
+    return {}
 
 
 def process_image(db: Session, image_id: str, file_path: str):
@@ -26,9 +44,6 @@ def process_image(db: Session, image_id: str, file_path: str):
         logger.info(f"Processing image {image_id}")
 
         img = PILImage.open(file_path)
-
-        if img.format not in ALLOWED_FORMATS:
-            raise ValueError("invalid file format")
 
         # Extract metadata
         width, height = img.size
@@ -45,6 +60,9 @@ def process_image(db: Session, image_id: str, file_path: str):
         img.thumbnail((512, 512))
         img.save(medium_thumb_path)
 
+        # Extract EXIF data
+        exif = extract_exif_data(file_path)
+
         # Generate caption
         caption = generate_caption(file_path)
 
@@ -55,6 +73,7 @@ def process_image(db: Session, image_id: str, file_path: str):
         db_image.format = img.format
         db_image.size_bytes = file_size
         db_image.caption = caption
+        db_image.exif_data = exif
         db_image.status = "success"
         db_image.processed_at = datetime.utcnow()
         db_image.processing_time = time.time() - start_time

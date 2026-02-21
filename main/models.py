@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, DateTime, Float, func
+from sqlalchemy import Column, String, Integer, DateTime, Float, JSON, func
 from datetime import datetime
 from database import Base
 
@@ -15,6 +15,7 @@ class Image(Base):
     size_bytes = Column(Integer)
 
     caption = Column(String)
+    exif_data = Column(JSON, nullable=True)
 
     processed_at = Column(DateTime, default=func.now())
     processing_time = Column(Float)

@@ -128,6 +128,7 @@ def list_images(db: Session = Depends(get_db)):
                         "format": img.format,
                         "size_bytes": img.size_bytes
                     },
+                    "exif_data": img.exif_data,
                     "thumbnails": {
                         "small": f"http://localhost:8000/api/images/{img.id}/thumbnails/small",
                         "medium": f"http://localhost:8000/api/images/{img.id}/thumbnails/medium"
@@ -188,6 +189,7 @@ def get_image(image_id: str, db: Session = Depends(get_db)):
                 "format": image.format,
                 "size_bytes": image.size_bytes
             },
+            "exif_data": image.exif_data,
             "thumbnails": {
                 "small": f"http://localhost:8000/api/images/{image.id}/thumbnails/small",
                 "medium": f"http://localhost:8000/api/images/{image.id}/thumbnails/medium"
