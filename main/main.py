@@ -12,6 +12,7 @@ import shutil
 import os
 import io
 
+from sqlalchemy import func
 from database import engine, SessionLocal, Base
 from models import Image
 from image_processing import process_image, UPLOAD_DIR
@@ -110,6 +111,7 @@ def list_images(db: Session = Depends(get_db)):
                 "image_id": img.id,
                 "original_name": img.original_name,
                 "processed_at": img.processed_at.isoformat() if img.processed_at else None,
+                "processing_time": img.processing_time,
                 "metadata": {
                     "width": img.width,
                     "height": img.height,
@@ -125,3 +127,18 @@ def list_images(db: Session = Depends(get_db)):
         })
 
     return JSONResponse(content=result)
+
+@app.get("/api/stats")
+def get_stats(db: Session = Depends(get_db)):
+    total_images = db.query(Image).count()
+    successful_images = db.query(Image).filter(Image.status == "success").count()
+    failed_images = db.query(Image).filter(Image.status == "failed").count()
+    total_processing_time = db.query(Image).with_entities(func.sum(Image.processing_time)).scalar() or 0
+    avg_processing_time = round(total_processing_time / total_images, 2)
+
+    return {
+        "total": total_images,
+        "successful": successful_images,
+        "failed": failed_images,
+        "average_processing_time_seconds": avg_processing_time
+    }
