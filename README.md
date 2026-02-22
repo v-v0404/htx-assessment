@@ -80,9 +80,8 @@ uvicorn main.main:app
 
 The application will be available at `http://127.0.0.1:8000`
 
-On first run, you will see Hugging Face downloading the BLIP model weights. This only happens once — the model is cached locally in your user profile (typically `C:\Users\<you>\.cache\huggingface\`).
-
-The SQLite database file (`images.db`) and storage directories (`uploads\` and `thumbnails\`) are created automatically in the project folder on first run.
+> On first run, you will see Hugging Face downloading the BLIP model weights. This only happens once — the model is cached locally in your user profile (typically `C:\Users\<you>\.cache\huggingface\`).
+> The SQLite database file (`images.db`) and storage directories (`uploads\` and `thumbnails\`) are created automatically in the project folder on first run.
 
 ### Interactive API Docs
 
@@ -90,8 +89,8 @@ FastAPI automatically generates interactive documentation. Once the server is ru
 
 | **URL** | **Description** |
 |---------|-----------------|
-| http://localhost:8000/docs | Swagger UI — try out each endpoint directly in the browser |
-| http://localhost:8000/redoc | ReDoc — clean, readable reference documentation |
+| http://127.0.0.1:8000/docs | Swagger UI — try out each endpoint directly in the browser |
+| http://127.0.0.1:8000/redoc | ReDoc — clean, readable reference documentation |
 
 ---
 
@@ -100,7 +99,7 @@ FastAPI automatically generates interactive documentation. Once the server is ru
 ### Base URL
 
 ```
-http://localhost:8000
+http://127.0.0.1:8000
 ```
 
 ### Upload Images
